@@ -9,6 +9,8 @@ import guru.springframework.spring5webapp.repositories.PublisherRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 public class BootStrapData implements CommandLineRunner {
 
@@ -27,31 +29,31 @@ public class BootStrapData implements CommandLineRunner {
 
         System.out.println("Started in Bootstrap");
 
-        Publisher publisher = new Publisher();
-        publisher.setName("SFG Publishing");
-        publisher.setCity("St Petersburg");
-        publisher.setState("FL");
-
+        Publisher publisher = new Publisher("SFG Publishing", null, "St Petersburg", "FL", null);
         publisherRepository.save(publisher);
 
         System.out.println("Publisher Count: " + publisherRepository.count());
 
         Author eric = new Author("Eric", "Evans");
-        Book ddd = new Book("Domain Driven Design", "123123");
-        eric.getBooks().add(ddd);
-        ddd.getAuthors().add(eric);
-
-        authorRepository.save(eric);
-        bookRepository.save(ddd);
-
         Author rod = new Author("Rod", "Johnson");
+        Book ddd = new Book("Domain Driven Design", "123123");
         Book noEJB = new Book("J2EE Development without EJB", "3939459459");
-        rod.getBooks().add(noEJB);
-        noEJB.getAuthors().add(rod);
 
-        authorRepository.save(rod);
-        bookRepository.save(noEJB);
+        setPublisherAuthorAndBook(publisher, eric, ddd);
+        setPublisherAuthorAndBook(publisher, rod, noEJB);
 
         System.out.println("Number of Books: " + bookRepository.count());
+        System.out.println("Publisher Number of Books: " + publisher.getBooks().size());
+    }
+
+    private void setPublisherAuthorAndBook(Publisher publisher, Author author, Book book) {
+        author.getBooks().add(book);
+        book.getAuthors().add(author);
+        book.setPublisher(publisher);
+        publisher.getBooks().add(book);
+
+        authorRepository.save(author);
+        bookRepository.save(book);
+        publisherRepository.save(publisher);
     }
 }
